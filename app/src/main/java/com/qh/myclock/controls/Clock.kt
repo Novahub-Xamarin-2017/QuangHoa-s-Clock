@@ -13,21 +13,20 @@ import java.util.*
  * Created by osx on 12/31/17.
  */
 class Clock : View{
-    private val arcWidth = 20f
-    private val padding = arcWidth/2
+    private val clockBorderWidth = 20f
+    private val clockBorderMargin = clockBorderWidth /2
 
-    private val minuteStrokeLength = 30f
-    private val hourStrokeLength = 40f
+    private val minuteStraightLineStrokeLength = 30f
+    private val hourStraightLineStrokeLength = 40f
 
-    private val minuteStrokeWidth = 2f
-    private val hourStrokeWidth = 5f
+    private val minuteStraightLineStrokeWidth = 2f
+    private val hourStraightLineStrokeWidth = 5f
 
-    private val textSpacing = 80
+    private val clockNumberToBorderSpacing = 80
 
-    private val hourAxisSpacing = 150f
-    private val minuteAxisSpacing = 120f
-    private val secondAxisSpacing = 110f
-
+    private val hourAxisToBorderSpacing = 150f
+    private val minuteAxisToBorderSpacing = 120f
+    private val secondAxisToBorderSpacing = 110f
 
     constructor(context: Context) : super(context)
     constructor(context: Context?, attrs: AttributeSet) : super(context, attrs)
@@ -36,12 +35,12 @@ class Clock : View{
 
     init {
         paint.isAntiAlias = true
-        paint.style = Paint.Style.STROKE
         paint.textSize = 30f
+        paint.style = Paint.Style.STROKE
         paint.textAlign = Paint.Align.CENTER
     }
 
-    private fun transformToMathAngeUnit(deg: Int): Double{
+    private fun transformToMathAngeUnit(deg: Float): Double{
         return (180 - deg) * Math.PI / 180
     }
 
@@ -49,7 +48,7 @@ class Clock : View{
                                  startSpacing: Float,
                                  endSpacing: Float,
                                  radius: Float,
-                                 ange: Int,
+                                 ange: Float,
                                  centerX: Float,
                                  centerY: Float,
                                  strokeWidth: Float){
@@ -73,7 +72,7 @@ class Clock : View{
 
             val centerX = canvas.width/2f
             val centerY = canvas.height/2f
-            val radius = Math.min(centerX, centerY) - padding
+            val radius = Math.min(centerX, centerY) - clockBorderMargin
 
             paint.color = Color.BLACK
 
@@ -91,14 +90,14 @@ class Clock : View{
         for (hour in 1..12) {
             drawLineToCenter(canvas,
                     0f,
-                    hourStrokeLength,
+                    hourStraightLineStrokeLength,
                     radius,
-                    hour * 30,
+                    hour * 30f,
                     centerX,
                     centerY,
-                    hourStrokeWidth
+                    hourStraightLineStrokeWidth
             )
-            drawClockNumbers(radius, hour, centerX, centerY, canvas)
+            drawClockNumber(canvas, hour, centerX, centerY, radius)
         }
     }
 
@@ -106,61 +105,50 @@ class Clock : View{
         for (number in 1..60) {
             drawLineToCenter(canvas,
                     0f,
-                    minuteStrokeLength,
+                    minuteStraightLineStrokeLength,
                     radius,
-                    number * 6,
+                    number * 6f,
                     centerX,
                     centerY,
-                    minuteStrokeWidth
+                    minuteStraightLineStrokeWidth
             )
         }
     }
 
-    private fun drawClockNumbers(radius: Float, number: Int, centerX: Float, centerY: Float, canvas: Canvas) {
-        val mathAnge = transformToMathAngeUnit(number * 30)
-        val textX = (radius - textSpacing) * Math.sin(mathAnge) + centerX
-        val textY = (radius - textSpacing) * Math.cos(mathAnge) + centerY
+    private fun drawClockNumber(canvas: Canvas, number: Int, centerX: Float, centerY: Float, radius: Float) {
+        val mathAnge = transformToMathAngeUnit(number * 30f)
+
+        val textX = (radius - clockNumberToBorderSpacing) * Math.sin(mathAnge) + centerX
+        val textY = (radius - clockNumberToBorderSpacing) * Math.cos(mathAnge) + centerY
 
         canvas.drawText(number.toString(), textX.toFloat(), textY.toFloat(), paint)
     }
 
     private fun drawClockBorder(canvas: Canvas, centerX: Float, centerY: Float, radius: Float) {
         paint.color = Color.rgb(0x37, 0x98, 0xDA)
-        paint.strokeWidth = arcWidth
+        paint.strokeWidth = clockBorderWidth
+
         canvas.drawCircle(centerX, centerY, radius, paint)
     }
 
     private fun drawClockAxises(canvas: Canvas, radius: Float, centerX: Float, centerY: Float) {
+        fun drawClockAxis(spacing: Float, ange: Float, strokeWidth: Float){
+            drawLineToCenter(canvas,
+                    spacing,
+                    radius,
+                    radius,
+                    ange,
+                    centerX,
+                    centerY,
+                    strokeWidth)
+        }
         val now = Calendar.getInstance()
         val hour = now.get(Calendar.HOUR_OF_DAY)
         val minute = now.get(Calendar.MINUTE)
         val second = now.get(Calendar.SECOND)
 
-        drawLineToCenter(canvas,
-                hourAxisSpacing,
-                radius,
-                radius,
-                hour * 30 + minute / 2,
-                centerX,
-                centerY,
-                15f)
-
-        drawLineToCenter(canvas,
-                minuteAxisSpacing,
-                radius,
-                radius,
-                minute * 6 + second / 10,
-                centerX,
-                centerY,
-                6f)
-
-        drawLineToCenter(canvas,
-                secondAxisSpacing,
-                radius,
-                radius,
-                second * 6,
-                centerX,
-                centerY,
-                4f)
+        drawClockAxis(hourAxisToBorderSpacing,hour * 30 + minute / 2f, 15f)
+        drawClockAxis(minuteAxisToBorderSpacing,minute * 6 + second / 10f,6f)
+        drawClockAxis(secondAxisToBorderSpacing,second * 6f,4f)
     }
 }
