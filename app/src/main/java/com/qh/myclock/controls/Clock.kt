@@ -76,9 +76,9 @@ class Clock : View{
 
             paint.color = Color.BLACK
 
-            drawMinutes(canvas, radius, centerX, centerY)
+            drawMinuteStraightLines(canvas, radius, centerX, centerY)
 
-            drawHours(canvas, radius, centerX, centerY)
+            drawHourStraightLinesAndNumbers(canvas, radius, centerX, centerY)
 
             drawClockBorder(canvas, centerX, centerY, radius)
 
@@ -86,7 +86,7 @@ class Clock : View{
         }
     }
 
-    private fun drawHours(canvas: Canvas, radius: Float, centerX: Float, centerY: Float) {
+    private fun drawHourStraightLinesAndNumbers(canvas: Canvas, radius: Float, centerX: Float, centerY: Float) {
         for (hour in 1..12) {
             drawLineToCenter(canvas,
                     0f,
@@ -101,7 +101,16 @@ class Clock : View{
         }
     }
 
-    private fun drawMinutes(canvas: Canvas, radius: Float, centerX: Float, centerY: Float) {
+    private fun drawClockNumber(canvas: Canvas, number: Int, centerX: Float, centerY: Float, radius: Float) {
+        val mathAnge = transformToMathAngeUnit(number * 30f)
+
+        val textX = (radius - clockNumberToBorderSpacing) * Math.sin(mathAnge) + centerX
+        val textY = (radius - clockNumberToBorderSpacing) * Math.cos(mathAnge) + centerY
+
+        canvas.drawText(number.toString(), textX.toFloat(), textY.toFloat(), paint)
+    }
+
+    private fun drawMinuteStraightLines(canvas: Canvas, radius: Float, centerX: Float, centerY: Float) {
         for (number in 1..60) {
             drawLineToCenter(canvas,
                     0f,
@@ -115,14 +124,7 @@ class Clock : View{
         }
     }
 
-    private fun drawClockNumber(canvas: Canvas, number: Int, centerX: Float, centerY: Float, radius: Float) {
-        val mathAnge = transformToMathAngeUnit(number * 30f)
 
-        val textX = (radius - clockNumberToBorderSpacing) * Math.sin(mathAnge) + centerX
-        val textY = (radius - clockNumberToBorderSpacing) * Math.cos(mathAnge) + centerY
-
-        canvas.drawText(number.toString(), textX.toFloat(), textY.toFloat(), paint)
-    }
 
     private fun drawClockBorder(canvas: Canvas, centerX: Float, centerY: Float, radius: Float) {
         paint.color = Color.rgb(0x37, 0x98, 0xDA)
